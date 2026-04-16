@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTERNAL – Intake Agent & PDF Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lime: #D4F34A;
+    --lime-dark: #C2E038;
+    --sage: #B5CFC0;
+    --sage-mid: #9BB8AA;
+    --sage-dark: #7A9E8C;
+    --cream: #F8F7F4;
+    --warm-gray: #E8E6E1;
+    --charcoal: #2C2C2C;
+    --dark-bg: #1A1A1A;
+    --mid-gray: #6B6B6B;
+    --light-gray: #EDEDEB;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', Helvetica, sans-serif; background: #fff; color: var(--charcoal); }
+
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  .section-tag.light { color: var(--sage-dark); }
+  .section-tag.dark { color: var(--lime); }
+
+  .heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 400;
+    line-height: 1.15;
+    margin: 0;
+  }
+  .heading.dark { color: #fff; }
+  .heading.light { color: var(--charcoal); }
+
+  .body-text {
+    font-family: 'DM Sans', Helvetica, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    margin: 0;
+  }
+  .body-text.dark { color: rgba(255,255,255,0.75); }
+  .body-text.light { color: var(--mid-gray); }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .cta-btn:hover { opacity: 0.85; }
+  .cta-btn.primary { background: var(--charcoal); color: #fff; }
+  .cta-btn.lime { background: var(--lime); color: var(--charcoal); }
+
+  .cta-link {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--charcoal);
+    cursor: pointer;
+  }
+  .cta-link.dark { color: rgba(255,255,255,0.6); }
+
+  .chip {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(212,243,74,0.25);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 100px;
+    border: 1px solid rgba(212,243,74,0.5);
+  }
+
+  /* Video placeholder */
+  .video-placeholder {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .video-placeholder.dark {
+    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .video-placeholder.light {
+    background: linear-gradient(135deg, var(--light-gray) 0%, var(--warm-gray) 100%);
+    border: 1px solid var(--light-gray);
+  }
+  .video-play-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .video-play-btn.dark { background: var(--lime); box-shadow: 0 4px 20px rgba(212,243,74,0.3); }
+  .video-play-btn.light { background: var(--charcoal); box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+
+  .video-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .video-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-align: center;
+    max-width: 280px;
+    line-height: 1.5;
+  }
+  .video-duration {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #fff;
+  }
+  .video-duration.dark { background: rgba(0,0,0,0.5); }
+  .video-duration.light { background: rgba(0,0,0,0.6); }
+  .video-corner-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .video-corner-tag.dark { background: rgba(212,243,74,0.2); color: var(--lime); }
+  .video-corner-tag.light { background: rgba(44,44,44,0.08); color: var(--mid-gray); }
+
+  /* Tab styles */
+  .tab-container {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 4px;
+    width: fit-content;
+    margin: 0 auto 40px;
+  }
+  .tab-btn {
+    padding: 10px 28px;
+    border-radius: 6px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+  }
+  .tab-btn.active {
+    background: var(--lime);
+    color: var(--charcoal);
+    font-weight: 600;
+  }
+
+  /* Workflow step */
+  .workflow-step { display: flex; gap: 24px; align-items: flex-start; }
+  .workflow-number {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--lime);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; color: var(--charcoal); font-weight: 600;
+    flex-shrink: 0;
+  }
+  .workflow-connector {
+    width: 2px; height: 40px;
+    background: linear-gradient(to bottom, var(--lime), var(--light-gray));
+    margin-top: 4px;
+  }
+  .workflow-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px; font-weight: 600;
+    color: var(--charcoal); margin-bottom: 4px;
+  }
+  .workflow-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; color: var(--mid-gray);
+    line-height: 1.55;
+  }
+
+  /* Feature cards */
+  .feature-card-dark {
+    padding: 24px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .feature-card-dark .icon { font-size: 24px; margin-bottom: 12px; }
+  .feature-card-dark .title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px;
+  }
+  .feature-card-dark .desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.55;
+  }
+
+  /* Use case cards */
+  .usecase-card {
+    padding: 28px; background: #fff; border-radius: 10px;
+    border: 1px solid var(--light-gray);
+  }
+  .usecase-card .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; color: var(--charcoal); margin-bottom: 10px;
+  }
+  .usecase-card .desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--mid-gray); line-height: 1.6;
+  }
+
+  /* PDF feature cards */
+  .pdf-card {
+    padding: 28px; background: var(--cream); border-radius: 10px;
+  }
+  .pdf-card .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; color: var(--charcoal); margin-bottom: 10px;
+  }
+  .pdf-card .desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--mid-gray); line-height: 1.6;
+  }
+
+  /* Copy reference cards */
+  .copy-card {
+    background: #fff; border-radius: 10px; padding: 28px;
+    margin-bottom: 20px; border: 1px solid var(--light-gray);
+  }
+  .copy-card .label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--sage-dark); margin-bottom: 12px;
+  }
+  .copy-card pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px; color: var(--charcoal);
+    background: var(--cream); padding: 16px;
+    border-radius: 6px; line-height: 1.8;
+    white-space: pre-wrap; margin: 0;
+  }
+
+  /* Grid texture */
+  .grid-texture {
+    position: absolute; inset: 0; opacity: 0.03;
+    background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     SECTION 1: HOMEPAGE AI SECTION
+     ═══════════════════════════════════════ -->
+<section style="background: var(--dark-bg); padding: 80px 24px; position: relative; overflow: hidden;">
+  <div class="grid-texture"></div>
+  <div style="max-width: 1100px; margin: 0 auto; position: relative;">
+
+    <div style="text-align: center; margin-bottom: 56px;">
+      <span class="section-tag dark">ARTERNAL AI — NOW LIVE</span>
+      <h2 class="heading dark" style="font-size: 44px; margin-top: 8px;">
+        AI that works the way<br>
+        <em style="font-style: italic; color: var(--lime);">registrars</em> work
+      </h2>
+      <p class="body-text dark" style="max-width: 600px; margin: 20px auto 0;">
+        No guesswork. ARTERNAL's AI handles the tedious stuff — intake paperwork, follow-up drafts — while you stay in full control.
+      </p>
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="tab-container">
+      <button class="tab-btn active" onclick="switchTab('intake')" id="tab-intake">Intake Agent</button>
+      <button class="tab-btn" onclick="switchTab('pdf')" id="tab-pdf">PDF Builder</button>
+    </div>
+
+    <!-- INTAKE TAB -->
+    <div id="content-intake">
+      <div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: center;">
+        <div>
+          <h2 class="heading dark" style="font-size: 28px; margin-bottom: 16px;">
+            From document to draft record in seconds
+          </h2>
+          <p class="body-text dark" style="margin-bottom: 24px;">
+            Upload a PDF, text message, artist submission, or pull artwork data straight from Smart Mail. The Intake Agent extracts every field, shows you exactly where each value came from, and waits for your approval before touching the database.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;">
+            <span class="chip">PDFs</span>
+            <span class="chip">Images</span>
+            <span class="chip">CSV/Excel</span>
+            <span class="chip">Smart Mail</span>
+            <span class="chip">Pasted text</span>
+          </div>
+        </div>
+
+        <!-- Video placeholder: Intake Agent -->
+        <div class="video-placeholder dark" style="aspect-ratio: 16/9;">
+          <div class="video-play-btn dark">
+            <svg width="20" height="22" viewBox="0 0 20 22" fill="none"><path d="M19 11L1 21V1L19 11Z" fill="var(--charcoal)" stroke="var(--charcoal)" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="video-label" style="color: #fff;">Intake Agent in action</div>
+          <div class="video-desc" style="color: rgba(255,255,255,0.4);">Upload a document, watch fields populate, approve the record</div>
+          <div class="video-duration dark">~15–20s</div>
+          <div class="video-corner-tag dark">Video placeholder</div>
+        </div>
+      </div>
+
+      <!-- Key principles -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;">
+        <div class="feature-card-dark">
+          <div class="icon">🔍</div>
+          <div class="title">Source-attributed</div>
+          <div class="desc">Every extracted field shows which line of the source document it came from. No guessing.</div>
+        </div>
+        <div class="feature-card-dark">
+          <div class="icon">✋</div>
+          <div class="title">Human-in-the-loop</div>
+          <div class="desc">Nothing is written to your database until you explicitly approve. Edit any field before confirming.</div>
+        </div>
+        <div class="feature-card-dark">
+          <div class="icon">🔁</div>
+          <div class="title">Duplicate detection</div>
+          <div class="desc">If an artist + title or inventory number already exists, you'll see a side-by-side comparison before proceeding.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF TAB -->
+    <div id="content-pdf" class="hidden">
+      <div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: center;">
+        <div>
+          <h2 class="heading dark" style="font-size: 28px; margin-bottom: 16px;">
+            PDFs that look like you hired a designer
+          </h2>
+          <p class="body-text dark" style="margin-bottom: 24px;">
+            Build presentation-ready catalogs, tear sheets, and sales documents right inside ARTERNAL. Drag artwork in from your inventory, arrange pages with a visual editor, and apply your gallery branding automatically. No exports to InDesign. No back-and-forth with templates.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;">
+            <span class="chip">Cover slides</span>
+            <span class="chip">Artwork slides</span>
+            <span class="chip">Detail views</span>
+            <span class="chip">Custom layouts</span>
+            <span class="chip">Brand profiles</span>
+          </div>
+          <div style="display: flex; gap: 16px; align-items: center;">
+            <a href="https://arternal.com/get-started" class="cta-btn lime">Try the PDF Builder</a>
+            <a href="https://support.arternal.com/en/articles/14184374-create-presentation-ready-pdfs-in-arternal" class="cta-link dark">See examples →</a>
+          </div>
+        </div>
+
+        <!-- Video placeholder: PDF Builder -->
+        <div class="video-placeholder dark" style="aspect-ratio: 16/9;">
+          <div class="video-play-btn dark">
+            <svg width="20" height="22" viewBox="0 0 20 22" fill="none"><path d="M19 11L1 21V1L19 11Z" fill="var(--charcoal)" stroke="var(--charcoal)" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="video-label" style="color: #fff;">PDF Builder in action</div>
+          <div class="video-desc" style="color: rgba(255,255,255,0.4);">Drag artwork in, arrange pages, apply branding, download</div>
+          <div class="video-duration dark">~15–20s</div>
+          <div class="video-corner-tag dark">Video placeholder</div>
+        </div>
+      </div>
+
+      <!-- Key features -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;">
+        <div class="feature-card-dark">
+          <div class="icon">🎨</div>
+          <div class="title">Brand Profile</div>
+          <div class="desc">Set your logo, colors, and typography once. They apply automatically to every PDF you create.</div>
+        </div>
+        <div class="feature-card-dark">
+          <div class="icon">📐</div>
+          <div class="title">Visual editor</div>
+          <div class="desc">Drag, resize, and layer artwork, text, shapes, and images. No design skills needed.</div>
+        </div>
+        <div class="feature-card-dark">
+          <div class="icon">📄</div>
+          <div class="title">Slide-based pages</div>
+          <div class="desc">Cover slides, artwork slides, detail views, and blank canvases. Build catalogs in minutes.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 2: INTAKE AGENT DEEP DIVE
+     ═══════════════════════════════════════ -->
+<section style="padding: 80px 24px; background: var(--cream);">
+  <div style="max-width: 900px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 56px;">
+      <span class="section-tag light">INTAKE AGENT — HOW IT WORKS</span>
+      <h2 class="heading light" style="font-size: 38px;">Four steps. Zero manual data entry.</h2>
+      <p class="body-text light" style="max-width: 560px; margin: 16px auto 0;">
+        The Intake Agent turns any document into a structured artwork record, then hands it to you for a final check.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;">
+      <div>
+        <!-- Step 1 -->
+        <div class="workflow-step">
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="workflow-number">1</div>
+            <div class="workflow-connector"></div>
+          </div>
+          <div style="padding-top: 6px;">
+            <div class="workflow-title">Upload your document</div>
+            <div class="workflow-desc">Upload a PDF, text message, artist submission, or pull artwork data straight from Smart Mail.</div>
+          </div>
+        </div>
+        <!-- Step 2 -->
+        <div class="workflow-step">
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="workflow-number">2</div>
+            <div class="workflow-connector"></div>
+          </div>
+          <div style="padding-top: 6px;">
+            <div class="workflow-title">AI extracts every field</div>
+            <div class="workflow-desc">Title, artist, medium, dimensions, edition info, year. Pulled from the document with source attribution for each field.</div>
+          </div>
+        </div>
+        <!-- Step 3 -->
+        <div class="workflow-step">
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="workflow-number">3</div>
+            <div class="workflow-connector"></div>
+          </div>
+          <div style="padding-top: 6px;">
+            <div class="workflow-title">Review and edit</div>
+            <div class="workflow-desc">See every extracted value alongside its source. Edit anything that needs correcting. Duplicate detection flags existing records automatically.</div>
+          </div>
+        </div>
+        <!-- Step 4 -->
+        <div class="workflow-step">
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="workflow-number">4</div>
+          </div>
+          <div style="padding-top: 6px;">
+            <div class="workflow-title">Approve and create</div>
+            <div class="workflow-desc">One click to confirm. The artwork record is created in your inventory with images included. Nothing is saved until you say so.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video placeholder: Full walkthrough -->
+      <div class="video-placeholder light" style="aspect-ratio: 16/9;">
+        <div class="video-play-btn light">
+          <svg width="20" height="22" viewBox="0 0 20 22" fill="none"><path d="M19 11L1 21V1L19 11Z" fill="#fff" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="video-label" style="color: var(--charcoal);">Full intake walkthrough</div>
+        <div class="video-desc" style="color: var(--mid-gray);">Steps 1–4 in a single screen recording from the actual product</div>
+        <div class="video-duration light">~15–20s</div>
+        <div class="video-corner-tag light">Video placeholder</div>
+      </div>
+    </div>
+
+    <!-- Use cases -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px;">
+      <div class="usecase-card">
+        <div class="title">Art fair intake</div>
+        <div class="desc">Batch upload consignment documents and get records prepped for your booth before you even arrive.</div>
+      </div>
+      <div class="usecase-card">
+        <div class="title">Smart Mail extraction</div>
+        <div class="desc">See an artwork attachment in Smart Mail? Pull the image and data directly into the Intake Agent. No re-uploading needed.</div>
+      </div>
+      <div class="usecase-card">
+        <div class="title">Text message intake</div>
+        <div class="desc">Screenshot an artwork sent via text message, upload it to the Intake Agent, and let it pull the image and details into a draft record.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 3: PDF BUILDER DEEP DIVE
+     ═══════════════════════════════════════ -->
+<section style="padding: 80px 24px; background: #fff;">
+  <div style="max-width: 900px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 56px;">
+      <span class="section-tag light">PDF BUILDER</span>
+      <h2 class="heading light" style="font-size: 38px;">Client-ready documents.<br>Built in your browser.</h2>
+      <p class="body-text light" style="max-width: 560px; margin: 16px auto 0;">
+        Stop exporting to InDesign or fighting with Word templates. The new PDF builder lets you create polished catalogs, tear sheets, and proposals without ever leaving ARTERNAL.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+      <div class="pdf-card">
+        <div class="title">Pull from your inventory</div>
+        <div class="desc">Select an exhibition, fair, or curated list and your artwork populates automatically with images and captions.</div>
+      </div>
+      <div class="pdf-card">
+        <div class="title">Design with a visual editor</div>
+        <div class="desc" style="margin-bottom: 16px;">Move elements on a canvas. Adjust fonts, spacing, alignment, opacity, and layering. No code, no templates.</div>
+        <!-- Video placeholder: Visual editor -->
+        <div class="video-placeholder light" style="aspect-ratio: 16/10;">
+          <div class="video-play-btn light">
+            <svg width="20" height="22" viewBox="0 0 20 22" fill="none"><path d="M19 11L1 21V1L19 11Z" fill="#fff" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="video-label" style="color: var(--charcoal);">Drag-and-drop editing</div>
+          <div class="video-desc" style="color: var(--mid-gray);">Short GIF or looping clip of the visual editor in use</div>
+          <div class="video-duration light">~15–20s</div>
+          <div class="video-corner-tag light">Video placeholder</div>
+        </div>
+      </div>
+      <div class="pdf-card">
+        <div class="title">Page types for every use case</div>
+        <div class="desc">Cover slides for first impressions. Artwork slides with captions. Detail slides for full-bleed images. Blank pages for total control.</div>
+      </div>
+      <div class="pdf-card">
+        <div class="title">Your brand, automatically</div>
+        <div class="desc">Set your gallery logo, colors, and fonts once in Brand Profile. Every new PDF starts on-brand without manual styling.</div>
+      </div>
+      <div class="pdf-card">
+        <div class="title">Upload your own assets</div>
+        <div class="desc">Add logos, installation photos, or supporting images. Mix custom visuals with inventory artwork on any page.</div>
+      </div>
+      <div class="pdf-card">
+        <div class="title">Preview and download</div>
+        <div class="desc">Check everything in preview mode, then download, share as a link in Smart Mail, or send via text message.</div>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+      <a href="https://support.arternal.com/en/articles/14188331-pdf-layout-examples-best-practices" class="cta-link">See PDF layout examples & best practices →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 4: COPY REFERENCE
+     ═══════════════════════════════════════ -->
+<section style="padding: 64px 24px; background: var(--warm-gray);">
+  <div style="max-width: 900px; margin: 0 auto;">
+    <span class="section-tag light">IMPLEMENTATION GUIDE — COPY REFERENCE</span>
+    <h2 class="heading light" style="font-size: 28px; margin-bottom: 24px;">Ready-to-use copy for your website updates</h2>
+
+    <div class="copy-card">
+      <div class="label">① Nav Dropdown — Replace "Coming Soon"</div>
+      <pre>ARTERNAL AI
+Intake Agent, PDF Builder & operational intelligence for registrars</pre>
+    </div>
+
+    <div class="copy-card">
+      <div class="label">② Homepage — "PDFs & OVRs" Section (Updated Copy)</div>
+      <pre>HEADING: Polished PDFs & Viewing Rooms — No Designer Required
+
+BODY: Build presentation-ready catalogs, tear sheets, and branded 
+proposals with a visual editor that pulls straight from your inventory. 
+Design page by page, apply your brand automatically, and download 
+client-ready documents in minutes. Pair with Online Viewing Rooms 
+to give collectors a gallery-quality digital experience — and track 
+exactly who engaged with what.
+
+BULLETS:
+• Visual PDF editor with drag-and-drop artwork, text & images
+• Brand Profile applies your logo, colors & fonts automatically
+• Cover, artwork, detail & blank slide types
+• OVR analytics show views, time spent & shares</pre>
+    </div>
+
+    <div class="copy-card">
+      <div class="label">③ Homepage — "ARTERNAL AI" Section (Updated Copy)</div>
+      <pre>TAG: ARTERNAL AI (remove "Coming Soon")
+
+HEADING: AI for Operations, Not Admin Overhead
+
+BODY: Your registrar spends hours on paperwork. Your sales team 
+triages dozens of inquiries manually. ARTERNAL's AI Agents handle 
+the repetitive work — giving your team their headspace back.
+
+FEATURE 1: Intake Agent
+Upload a PDF, image, CSV, or Smart Mail attachment. Get a draft 
+artwork record with per-field source attribution in seconds. 
+Review, edit, approve — done. Nothing is saved without your say-so.
+
+FEATURE 2: PDF Builder  
+Build branded catalogs, tear sheets, and proposals with a visual 
+editor. Pull artwork from inventory, arrange pages, apply your 
+branding, and download a polished PDF — all without leaving ARTERNAL.
+
+FEATURE 3: Inbound Response Automation
+AI drafts personalized responses from inquiries. Answers questions 
+and recommends artwork to sell.
+
+FEATURE 4: Follow-Up Intelligence
+AI surfaces who to contact based on engagement and automatically 
+drafts replies.</pre>
+    </div>
+
+    <div class="copy-card">
+      <div class="label">④ Inventory Page — Add New Section + Update PDF Section</div>
+      <pre>NEW SECTION (add above or below existing "PDF CREATION"):
+
+TAG: AI-POWERED INTAKE
+HEADING: Add artwork to inventory without the busywork
+BODY: Upload a consignment PDF, shipping manifest, artist 
+submission — or pull images and data straight from Smart Mail. 
+The Intake Agent extracts title, artist, medium, dimensions, 
+and more, then stages a draft record for your review. 
+Every field shows its source. Nothing is saved until you approve.
+CTA: Learn more about the Intake Agent →
+
+---
+
+UPDATED "PDF CREATION" SECTION:
+
+TAG: PDF BUILDER
+HEADING: Presentation-ready PDFs, built in your browser
+BODY: Create polished catalogs, tear sheets, and collector 
+previews with a drag-and-drop visual editor. Pull artwork 
+from any inventory list, arrange pages with cover slides, 
+artwork slides, and detail views, and apply your gallery 
+branding automatically. Preview and download — done.
+CTA: See PDF layout examples →</pre>
+    </div>
+
+    <div class="copy-card" style="margin-bottom: 0;">
+      <div class="label">⑤ Smart Mail Page — Add New Bullet or Callout</div>
+      <pre>ADD TO EXISTING BULLET LIST:
+• Extract artwork images and data into inventory 
+  with the Intake Agent — right from a Smart Mail message
+
+OR AS A STANDALONE CALLOUT:
+
+"See an artwork attachment in your inbox? Click 'Extract in 
+Intake Agent' to pull the image and metadata into a draft 
+inventory record — no re-uploading, no copy-paste."</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 5: CTA
+     ═══════════════════════════════════════ -->
+<section style="padding: 72px 24px; background: linear-gradient(135deg, var(--charcoal) 0%, #333 100%); text-align: center;">
+  <h2 class="heading dark" style="font-size: 32px;">See it in action</h2>
+  <p class="body-text dark" style="max-width: 480px; margin: 16px auto 28px;">
+    We'll walk you through the Intake Agent and PDF Builder in a live demo. 30 minutes, no pitch deck.
+  </p>
+  <a href="https://arternal.com/get-started" class="cta-btn lime">Get a Demo</a>
+</section>
+
+<script>
+function switchTab(tab) {
+  document.getElementById('content-intake').classList.toggle('hidden', tab !== 'intake');
+  document.getElementById('content-pdf').classList.toggle('hidden', tab !== 'pdf');
+  document.getElementById('tab-intake').classList.toggle('active', tab === 'intake');
+  document.getElementById('tab-pdf').classList.toggle('active', tab === 'pdf');
+}
+</script>
+
+</body>
+</html>
